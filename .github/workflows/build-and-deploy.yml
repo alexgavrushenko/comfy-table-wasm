@@ -217,7 +217,7 @@ jobs:
         
     - name: Replace GitHub repository placeholder
       run: |
-        sed -i "s/\${GITHUB_REPOSITORY}/${{ github.repository }}/g" pages-deploy/index.html
+        sed -i "s|\${GITHUB_REPOSITORY}|${{ github.repository }}|g" pages-deploy/index.html
         
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v3
