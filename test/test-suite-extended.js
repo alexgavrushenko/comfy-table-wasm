@@ -47,7 +47,9 @@ export class TestSuite {
     }
 }
 
-export function createTestSuite(TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options) {
+import { createLargeTable, createAaaaaaaaTable } from './test-utils.js';
+
+export function createTestSuite(TableWrapper, convert_ansi_to_html, convert_ansi_to_html_with_options) {
     const suite = new TestSuite();
 
     // ========== PERFORMANCE TESTS ==========
@@ -55,7 +57,7 @@ export function createTestSuite(TableWrapper, create_large_table, create_aaaaaaa
     // Test 1: Large Table Performance Benchmark
     suite.addTest('Performance - Large Table (1000x3)', () => {
         const start = performance.now();
-        const table = create_large_table(1000, 3, 50);
+        const table = createLargeTable(TableWrapper, 1000, 3, 50);
         const creationTime = performance.now() - start;
         
         const renderStart = performance.now();
@@ -95,7 +97,7 @@ export function createTestSuite(TableWrapper, create_large_table, create_aaaaaaa
     // Test 2: Pattern Table Performance Benchmark  
     suite.addTest('Performance - Pattern Table (1000x2)', () => {
         const start = performance.now();
-        const table = create_aaaaaaaa_table(1000, 2);
+        const table = createAaaaaaaaTable(TableWrapper, 1000, 2);
         const creationTime = performance.now() - start;
         
         const renderStart = performance.now();
@@ -145,7 +147,7 @@ export function createTestSuite(TableWrapper, create_large_table, create_aaaaaaa
         // Create 5 large tables
         for (let i = 0; i < 5; i++) {
             const start = performance.now();
-            const table = create_large_table(200, 4, 25);
+            const table = createLargeTable(TableWrapper, 200, 4, 25);
             const creationTime = performance.now() - start;
             
             const renderStart = performance.now();

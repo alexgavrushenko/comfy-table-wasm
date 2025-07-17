@@ -71,50 +71,7 @@ impl Default for TableWrapper {
     }
 }
 
-#[wasm_bindgen]
-pub fn create_large_table(rows: usize, cols: usize, cell_size: usize) -> TableWrapper {
-    let mut table = TableWrapper::new();
-
-    // Create header
-    let header: Vec<String> = (0..cols).map(|i| format!("Column {}", i + 1)).collect();
-    table.set_header(header);
-
-    // Create cell content
-    let cell_content = "?\n".repeat(cell_size);
-
-    // Add rows
-    for _row in 0..rows {
-        let row_data: Vec<String> = (0..cols).map(|_| cell_content.clone()).collect();
-        table.add_row(row_data);
-    }
-
-    table
-}
-
-#[wasm_bindgen]
-pub fn create_aaaaaaaa_table(rows: usize, cols: usize) -> TableWrapper {
-    let mut table = TableWrapper::new();
-
-    // Create header
-    let header: Vec<String> = (0..cols).map(|i| format!("#{}", i + 1)).collect();
-    table.set_header(header);
-    table.set_width(7);
-
-    // Add rows with varying a
-    for row_idx in 0..rows {
-        let row_data: Vec<String> = (0..cols)
-            .map(|col_idx| {
-                // Use simple hash-based pattern generation (5-10 'a's)
-                let seed = (row_idx * 17 + col_idx * 31) % 6;
-                let pattern_count = 5 + seed;
-                "a".repeat(pattern_count)
-            })
-            .collect();
-        table.add_row(row_data);
-    }
-
-    table
-}
+// Test helper functions - removed from WASM exports, now implemented in JavaScript
 
 #[wasm_bindgen]
 pub fn convert_ansi_to_html(input: &str) -> String {
@@ -145,6 +102,50 @@ mod tests {
     use super::*;
     use std::time::Instant;
 
+    // Local helper functions for testing
+    fn create_large_table_local(rows: usize, cols: usize, cell_size: usize) -> TableWrapper {
+        let mut table = TableWrapper::new();
+
+        // Create header
+        let header: Vec<String> = (0..cols).map(|i| format!("Column {}", i + 1)).collect();
+        table.set_header(header);
+
+        // Create cell content
+        let cell_content = "?\n".repeat(cell_size);
+
+        // Add rows
+        for _row in 0..rows {
+            let row_data: Vec<String> = (0..cols).map(|_| cell_content.clone()).collect();
+            table.add_row(row_data);
+        }
+
+        table
+    }
+
+    fn create_aaaaaaaa_table_local(rows: usize, cols: usize) -> TableWrapper {
+        let mut table = TableWrapper::new();
+
+        // Create header
+        let header: Vec<String> = (0..cols).map(|i| format!("#{}", i + 1)).collect();
+        table.set_header(header);
+        table.set_width(7);
+
+        // Add rows with varying a
+        for row_idx in 0..rows {
+            let row_data: Vec<String> = (0..cols)
+                .map(|col_idx| {
+                    // Use simple hash-based pattern generation (5-10 'a's)
+                    let seed = (row_idx * 17 + col_idx * 31) % 6;
+                    let pattern_count = 5 + seed;
+                    "a".repeat(pattern_count)
+                })
+                .collect();
+            table.add_row(row_data);
+        }
+
+        table
+    }
+
     #[test]
     fn test_large_table_performance() {
         let rows = 1000;
@@ -152,7 +153,7 @@ mod tests {
         let cell_size = 75; // 50-100 range
 
         let start = Instant::now();
-        let table = create_large_table(rows, cols, cell_size);
+        let table = create_large_table_local(rows, cols, cell_size);
         let creation_time = start.elapsed();
 
         let start = Instant::now();
@@ -177,7 +178,7 @@ mod tests {
         let cols = 1;
 
         let start = Instant::now();
-        let table = create_aaaaaaaa_table(rows, cols);
+        let table = create_aaaaaaaa_table_local(rows, cols);
         let creation_time = start.elapsed();
 
         let start = Instant::now();

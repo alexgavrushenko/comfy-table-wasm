@@ -246,7 +246,7 @@
         // Use absolute paths for GitHub Pages compatibility
         const basePath = window.location.origin + window.location.pathname.replace('/test/comprehensive-test.html', '');
         import(`${basePath}/pkg-web/comfy_table_wasm.js`).then(async (wasmModule) => {
-            const { default: init, TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options } = wasmModule;
+            const { default: init, TableWrapper, convert_ansi_to_html, convert_ansi_to_html_with_options } = wasmModule;
             
             const [syncModule, extendedModule] = await Promise.all([
                 import('./test-suite-synchronized.js'),
@@ -265,8 +265,8 @@
         async function initializeWasm() {
             if (!wasmInitialized) {
                 await init();
-                synchronizedTestSuite = createSynchronizedTestSuite(TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options);
-                extendedTestSuite = createTestSuite(TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options);
+                synchronizedTestSuite = createSynchronizedTestSuite(TableWrapper, convert_ansi_to_html, convert_ansi_to_html_with_options);
+                extendedTestSuite = createTestSuite(TableWrapper, convert_ansi_to_html, convert_ansi_to_html_with_options);
                 wasmInitialized = true;
             }
         }

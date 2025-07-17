@@ -47,7 +47,9 @@ export class TestSuite {
     }
 }
 
-export function createSynchronizedTestSuite(TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options) {
+import { createLargeTable, createAaaaaaaaTable } from './test-utils.js';
+
+export function createSynchronizedTestSuite(TableWrapper, convert_ansi_to_html, convert_ansi_to_html_with_options) {
     const suite = new TestSuite();
 
     // ========== SYNCHRONIZED TESTS FROM simple_test.rs ==========
@@ -341,7 +343,7 @@ export function createSynchronizedTestSuite(TableWrapper, create_large_table, cr
     // Test 11: Large table performance (enhanced with ANSI)
     suite.addTest('Large Table Performance (Enhanced)', () => {
         const start = performance.now();
-        const table = create_large_table(100, 3, 20); // Smaller for browser
+        const table = createLargeTable(TableWrapper, 100, 3, 20); // Smaller for browser
         const creationTime = performance.now() - start;
         
         const renderStart = performance.now();
@@ -372,7 +374,7 @@ export function createSynchronizedTestSuite(TableWrapper, create_large_table, cr
     // Test 12: Pattern table performance (enhanced with ANSI)
     suite.addTest('Pattern Table Performance (Enhanced)', () => {
         const start = performance.now();
-        const table = create_aaaaaaaa_table(100, 2);
+        const table = createAaaaaaaaTable(TableWrapper, 100, 2);
         const creationTime = performance.now() - start;
         
         const renderStart = performance.now();
