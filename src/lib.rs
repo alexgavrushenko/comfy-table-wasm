@@ -1,6 +1,5 @@
 use wasm_bindgen::prelude::*;
 use comfy_table::*;
-use console;
 
 #[wasm_bindgen]
 pub struct TableWrapper {
@@ -46,6 +45,7 @@ impl TableWrapper {
         self.table.set_header(headers);
     }
 
+    #[allow(clippy::inherent_to_string)]
     #[wasm_bindgen]
     pub fn to_string(&self) -> String {
         self.table.to_string()
@@ -60,6 +60,12 @@ impl TableWrapper {
     pub fn to_html(&self) -> String {
         let table_string = self.table.to_string();
         convert_ansi_to_html(&table_string)
+    }
+}
+
+impl Default for TableWrapper {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
