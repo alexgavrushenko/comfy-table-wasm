@@ -1,0 +1,18 @@
+[package]
+name = "comfy-table-wasm"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+comfy-table = { path = "../comfy-table", default-features = false, features = ["custom_styling"] }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+js-sys = "0.3"
+web-sys = "0.3"
+ansi-to-html = "0.2"
+console = "0.16"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"

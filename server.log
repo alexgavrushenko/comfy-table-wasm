@@ -1,0 +1,86 @@
+::ffff:127.0.0.1 - - [17/Jul/2025 09:19:58] "GET /test/comprehensive-test.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:19:58] "GET /pkg-web/comfy_table_wasm.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:19:58] "GET /test/test-suite.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:19:58] code 404, message File not found
+::ffff:127.0.0.1 - - [17/Jul/2025 09:19:58] "GET /favicon.ico HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:19:59] "GET /pkg-web/comfy_table_wasm_bg.wasm HTTP/1.1" 200 -
+::1 - - [17/Jul/2025 09:20:01] "GET /test/comprehensive-test.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:44:59] "GET /test/comprehensive-test.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:44:59] "GET /pkg-web/comfy_table_wasm.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:44:59] "GET /test/test-suite.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:44:59] code 404, message File not found
+::ffff:127.0.0.1 - - [17/Jul/2025 09:44:59] "GET /favicon.ico HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:45:01] "GET /pkg-web/comfy_table_wasm_bg.wasm HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:45:41] "GET /test/ansi-demo.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:45:41] "GET /pkg-web/comfy_table_wasm.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:45:42] code 404, message File not found
+::ffff:127.0.0.1 - - [17/Jul/2025 09:45:42] "GET /favicon.ico HTTP/1.1" 404 -
+----------------------------------------
+Exception occurred during processing of request from ('::ffff:127.0.0.1', 53330, 0, 0)
+::ffff:127.0.0.1 - - [17/Jul/2025 09:45:42] "GET /pkg-web/comfy_table_wasm_bg.wasm HTTP/1.1" 304 -
+Traceback (most recent call last):
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/server.py", line 731, in send_head
+    f = open(path, 'rb')
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/a_gavryushenko/workspace/comfy-table-wasm/favicon.ico'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/server.py", line 1320, in finish_request
+    self.RequestHandlerClass(request, client_address, self,
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             directory=args.directory)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/server.py", line 672, in __init__
+    super().__init__(*args, **kwargs)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/socketserver.py", line 766, in __init__
+    self.handle()
+    ~~~~~~~~~~~^^
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/server.py", line 436, in handle
+    self.handle_one_request()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/server.py", line 424, in handle_one_request
+    method()
+    ~~~~~~^^
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/server.py", line 676, in do_GET
+    f = self.send_head()
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/server.py", line 733, in send_head
+    self.send_error(HTTPStatus.NOT_FOUND, "File not found")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/server.py", line 491, in send_error
+    self.wfile.write(body)
+    ~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/local/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/socketserver.py", line 845, in write
+    self._sock.sendall(b)
+    ~~~~~~~~~~~~~~~~~~^^^
+ConnectionResetError: [Errno 54] Connection reset by peer
+----------------------------------------
+::1 - - [17/Jul/2025 09:53:26] "GET /test/comprehensive-test.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:53:30] "GET /test/comprehensive-test.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:53:30] "GET /pkg-web/comfy_table_wasm.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:53:30] "GET /test/test-suite-synchronized.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:53:30] "GET /test/test-suite.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:53:31] "GET /pkg-web/comfy_table_wasm_bg.wasm HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:53:34] "GET /test/comprehensive-test.html HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:53:34] code 404, message File not found
+::ffff:127.0.0.1 - - [17/Jul/2025 09:53:34] "GET /favicon.ico HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:59:05] "GET /test/comprehensive-test.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:59:05] "GET /pkg-web/comfy_table_wasm.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:59:05] "GET /test/test-suite-synchronized.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:59:05] "GET /test/test-suite.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:59:05] code 404, message File not found
+::ffff:127.0.0.1 - - [17/Jul/2025 09:59:05] "GET /favicon.ico HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [17/Jul/2025 09:59:08] "GET /pkg-web/comfy_table_wasm_bg.wasm HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 10:02:05] "GET /test/comprehensive-test.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 10:02:05] "GET /pkg-web/comfy_table_wasm.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 10:02:05] "GET /test/test-suite-synchronized.js HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [17/Jul/2025 10:02:05] "GET /test/test-suite.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 10:02:12] "GET /pkg-web/comfy_table_wasm_bg.wasm HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 10:02:24] "GET /test/comprehensive-test.html HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 10:02:24] "GET /test/test-suite-synchronized.js HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 10:02:49] "GET /test/comprehensive-test.html HTTP/1.1" 304 -
+::ffff:127.0.0.1 - - [17/Jul/2025 10:02:49] "GET /test/test-suite-synchronized.js HTTP/1.1" 304 -

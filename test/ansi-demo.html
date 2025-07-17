@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANSI to HTML Demo</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .demo-section {
+            background: white;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .input-output {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .input-area, .output-area {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            min-height: 100px;
+        }
+        
+        .input-area {
+            background: #f8f9fa;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        
+        .output-area {
+            background: white;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        
+        .html-output {
+            background: #f0f8ff;
+            border: 1px solid #b3d9ff;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        .table-demo {
+            margin-top: 20px;
+        }
+        
+        .rendered-table {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 ANSI to HTML Conversion Demo</h1>
+    
+    <div class="demo-section">
+        <h2>1. Basic ANSI Text Conversion</h2>
+        <p>Convert ANSI escape sequences to HTML with inline styles:</p>
+        
+        <div class="input-output">
+            <div>
+                <h3>ANSI Input:</h3>
+                <div class="input-area" id="ansi-input">Loading...</div>
+            </div>
+            <div>
+                <h3>HTML Output:</h3>
+                <div class="output-area html-output" id="html-output">Loading...</div>
+            </div>
+        </div>
+        
+        <div class="input-output">
+            <div>
+                <h3>HTML Source:</h3>
+                <div class="input-area" id="html-source">Loading...</div>
+            </div>
+            <div>
+                <h3>Rendered Result:</h3>
+                <div class="output-area" id="rendered-result">Loading...</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>2. Interactive ANSI Converter</h2>
+        <p>Try your own ANSI escape sequences:</p>
+        
+        <textarea id="custom-ansi" placeholder="Enter ANSI text here...
+Examples:
+\x1b[1mBold text\x1b[0m
+\x1b[31mRed text\x1b[0m  
+\x1b[32mGreen text\x1b[0m
+\x1b[4mUnderlined text\x1b[0m
+\x1b[1m\x1b[31mBold Red\x1b[0m
+\x1b[42m\x1b[30mGreen background with black text\x1b[0m"></textarea>
+        
+        <button onclick="convertCustomAnsi()">Convert to HTML</button>
+        <button onclick="clearCustomInput()">Clear</button>
+        
+        <div id="custom-result" class="rendered-table"></div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>3. Table with ANSI Content</h2>
+        <p>Create tables with ANSI-formatted content and convert to HTML:</p>
+        
+        <button onclick="createAnsiTable()">Create Table with ANSI Content</button>
+        <button onclick="convertTableToHtml()">Convert Table to HTML</button>
+        
+        <div class="table-demo">
+            <h3>Plain Table Output:</h3>
+            <div class="rendered-table" id="table-plain">Click "Create Table" to generate</div>
+            
+            <h3>HTML Table Output:</h3>
+            <div class="rendered-table" id="table-html">Click "Convert Table" to generate</div>
+        </div>
+    </div>
+    
+    <div class="demo-section">
+        <h2>4. ANSI Color Palette</h2>
+        <button onclick="showColorPalette()">Show ANSI Color Palette</button>
+        <div id="color-palette" class="rendered-table"></div>
+    </div>
+    
+    <script type="module">
+        import init, { TableWrapper, convert_ansi_to_html, convert_ansi_to_html_with_options } from '../pkg-web/comfy_table_wasm.js';
+        
+        let wasmInitialized = false;
+        let currentTable = null;
+        
+        async function initializeWasm() {
+            if (!wasmInitialized) {
+                await init();
+                wasmInitialized = true;
+                runBasicDemo();
+            }
+        }
+        
+        function runBasicDemo() {
+            const ansiText = '\x1b[1mBold\x1b[0m \x1b[31mRed\x1b[0m \x1b[32mGreen\x1b[0m \x1b[4mUnderlined\x1b[0m \x1b[1m\x1b[33mBold Yellow\x1b[0m';
+            const htmlOutput = convert_ansi_to_html(ansiText);
+            
+            document.getElementById('ansi-input').textContent = ansiText;
+            document.getElementById('html-output').textContent = htmlOutput;
+            document.getElementById('html-source').textContent = htmlOutput;
+            document.getElementById('rendered-result').innerHTML = htmlOutput;
+        }
+        
+        window.convertCustomAnsi = function() {
+            const input = document.getElementById('custom-ansi').value;
+            if (!input.trim()) return;
+            
+            const html = convert_ansi_to_html(input);
+            document.getElementById('custom-result').innerHTML = `
+                <h4>HTML Source:</h4>
+                <pre style="background: #f0f0f0; padding: 10px; border-radius: 4px; overflow-x: auto;">${escapeHtml(html)}</pre>
+                <h4>Rendered Result:</h4>
+                <div style="background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">${html}</div>
+            `;
+        };
+        
+        window.clearCustomInput = function() {
+            document.getElementById('custom-ansi').value = '';
+            document.getElementById('custom-result').innerHTML = '';
+        };
+        
+        window.createAnsiTable = function() {
+            currentTable = new TableWrapper();
+            currentTable.set_header(['Name', 'Status', 'Level']);
+            currentTable.add_row([
+                '\x1b[1mAlice\x1b[0m', 
+                '\x1b[32mOnline\x1b[0m', 
+                '\x1b[1m\x1b[33mAdmin\x1b[0m'
+            ]);
+            currentTable.add_row([
+                '\x1b[1mBob\x1b[0m', 
+                '\x1b[31mOffline\x1b[0m', 
+                '\x1b[36mUser\x1b[0m'
+            ]);
+            currentTable.add_row([
+                '\x1b[1mCharlie\x1b[0m', 
+                '\x1b[33mAway\x1b[0m', 
+                '\x1b[35mModerator\x1b[0m'
+            ]);
+            
+            currentTable.set_style('modern');
+            const plainOutput = currentTable.to_string();
+            document.getElementById('table-plain').innerHTML = `<pre>${escapeHtml(plainOutput)}</pre>`;
+        };
+        
+        window.convertTableToHtml = function() {
+            if (!currentTable) {
+                alert('Please create a table first!');
+                return;
+            }
+            
+            const htmlOutput = currentTable.to_html();
+            document.getElementById('table-html').innerHTML = `
+                <h4>HTML Source:</h4>
+                <pre style="background: #f0f0f0; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px;">${escapeHtml(htmlOutput)}</pre>
+                <h4>Rendered Result:</h4>
+                <div style="background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">${htmlOutput}</div>
+            `;
+        };
+        
+        window.showColorPalette = function() {
+            let paletteText = 'ANSI Color Palette:\n\n';
+            
+            // Standard colors
+            const colors = [
+                { code: 30, name: 'Black' },
+                { code: 31, name: 'Red' },
+                { code: 32, name: 'Green' },
+                { code: 33, name: 'Yellow' },
+                { code: 34, name: 'Blue' },
+                { code: 35, name: 'Magenta' },
+                { code: 36, name: 'Cyan' },
+                { code: 37, name: 'White' }
+            ];
+            
+            colors.forEach(color => {
+                paletteText += `\x1b[${color.code}m${color.name}\x1b[0m `;
+            });
+            
+            paletteText += '\n\nBright colors:\n';
+            colors.forEach(color => {
+                paletteText += `\x1b[1m\x1b[${color.code}m${color.name}\x1b[0m `;
+            });
+            
+            paletteText += '\n\nBackground colors:\n';
+            colors.forEach(color => {
+                const bgCode = color.code + 10;
+                paletteText += `\x1b[${bgCode}m\x1b[30m${color.name}\x1b[0m `;
+            });
+            
+            const html = convert_ansi_to_html(paletteText);
+            document.getElementById('color-palette').innerHTML = `
+                <h4>ANSI Source:</h4>
+                <pre style="background: #f0f0f0; padding: 10px; border-radius: 4px; overflow-x: auto; font-size: 12px;">${escapeHtml(paletteText)}</pre>
+                <h4>Rendered Palette:</h4>
+                <div style="background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">${html}</div>
+            `;
+        };
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeWasm);
+    </script>
+</body>
+</html>

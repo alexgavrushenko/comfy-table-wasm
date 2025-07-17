@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WASM Table Test</title>
+</head>
+<body>
+    <h1>WASM Table Test</h1>
+    <div id="output"></div>
+    
+    <script type="module">
+        import init, { TableWrapper, create_large_table, create_aaaaaaaa_table } from '../pkg/comfy_table_wasm.js';
+        
+        async function runTests() {
+            // CRITICAL: Initialize WASM first!
+            await init();
+            const output = document.getElementById('output');
+            
+            try {
+                output.innerHTML += '<h2>Test 1: Basic Table Creation</h2>';
+                const table = new TableWrapper();
+                table.set_header(['Name', 'Value']);
+                table.add_row(['Test', 'Data']);
+                const basicTable = table.to_string();
+                output.innerHTML += `<pre>${basicTable}</pre>`;
+                output.innerHTML += `<p>Height: ${table.get_height()} lines</p>`;
+                
+                output.innerHTML += '<h2>Test 2: Large Table Performance</h2>';
+                const start = performance.now();
+                const largeTable = create_large_table(100, 2, 10); // Smaller for browser
+                const end = performance.now();
+                output.innerHTML += `<p>Creation time: ${(end - start).toFixed(2)}ms</p>`;
+                output.innerHTML += `<p>Height: ${largeTable.get_height()} lines</p>`;
+                
+                output.innerHTML += '<h2>Test 3: Aaaaaaaa Table</h2>';
+                const start2 = performance.now();
+                const aaTable = create_aaaaaaaa_table(100, 1); // Smaller for browser
+                const end2 = performance.now();
+                output.innerHTML += `<p>Creation time: ${(end2 - start2).toFixed(2)}ms</p>`;
+                output.innerHTML += `<p>Height: ${aaTable.get_height()} lines</p>`;
+                
+                const aaTableString = aaTable.to_string();
+                const lines = aaTableString.split('\n');
+                output.innerHTML += '<h3>Preview:</h3>';
+                output.innerHTML += `<pre>${lines.slice(0, 15).join('\n')}</pre>`;
+                
+                output.innerHTML += '<p style="color: green;">✅ All tests passed!</p>';
+            } catch (error) {
+                output.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+                console.error(error);
+            }
+        }
+        
+        runTests();
+    </script>
+</body>
+</html>
