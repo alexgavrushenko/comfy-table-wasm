@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-comfy-table = { path = "../comfy-table", default-features = false, features = ["custom_styling"] }
+comfy-table = { git = "https://github.com/alexgavrushenko/comfy-table.git", branch = "tty_styling_decouple", default-features = false, features = ["custom_styling"] }
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 js-sys = "0.3"
 web-sys = "0.3"

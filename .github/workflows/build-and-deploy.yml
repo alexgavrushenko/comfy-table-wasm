@@ -27,6 +27,13 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       
+    - name: Configure Git for repository access
+      run: |
+        # Ensure we use HTTPS for GitHub access
+        git config --global url."https://github.com/".insteadOf "git@github.com:"
+        # Set up authentication for private repos if needed
+        git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/" || true
+      
     - name: Setup Rust
       uses: actions-rs/toolchain@v1
       with:

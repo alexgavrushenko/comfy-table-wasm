@@ -70,6 +70,7 @@ checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
 [[package]]
 name = "comfy-table"
 version = "7.1.4"
+source = "git+https://github.com/alexgavrushenko/comfy-table.git?branch=tty_styling_decouple#593b07b27866efb02c3363e6797bf77bcad74037"
 dependencies = [
  "ansi-str",
  "console",
