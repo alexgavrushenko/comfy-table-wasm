@@ -1,5 +1,5 @@
-use wasm_bindgen::prelude::*;
 use comfy_table::*;
+use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct TableWrapper {
@@ -23,7 +23,9 @@ impl TableWrapper {
 
     #[wasm_bindgen]
     pub fn set_width(&mut self, width: u16) {
-        self.table.set_width(width).set_content_arrangement(ContentArrangement::Dynamic);
+        self.table
+            .set_width(width)
+            .set_content_arrangement(ContentArrangement::Dynamic);
     }
 
     #[wasm_bindgen]
@@ -72,43 +74,45 @@ impl Default for TableWrapper {
 #[wasm_bindgen]
 pub fn create_large_table(rows: usize, cols: usize, cell_size: usize) -> TableWrapper {
     let mut table = TableWrapper::new();
-    
+
     // Create header
     let header: Vec<String> = (0..cols).map(|i| format!("Column {}", i + 1)).collect();
     table.set_header(header);
-    
+
     // Create cell content
     let cell_content = "?\n".repeat(cell_size);
-    
+
     // Add rows
     for _row in 0..rows {
         let row_data: Vec<String> = (0..cols).map(|_| cell_content.clone()).collect();
         table.add_row(row_data);
     }
-    
+
     table
 }
 
 #[wasm_bindgen]
 pub fn create_aaaaaaaa_table(rows: usize, cols: usize) -> TableWrapper {
     let mut table = TableWrapper::new();
-    
+
     // Create header
     let header: Vec<String> = (0..cols).map(|i| format!("#{}", i + 1)).collect();
     table.set_header(header);
     table.set_width(7);
-    
+
     // Add rows with varying a
     for row_idx in 0..rows {
-        let row_data: Vec<String> = (0..cols).map(|col_idx| {
-            // Use simple hash-based pattern generation (5-10 'a's)
-            let seed = (row_idx * 17 + col_idx * 31) % 6;
-            let pattern_count = 5 + seed;
-            "a".repeat(pattern_count)
-        }).collect();
+        let row_data: Vec<String> = (0..cols)
+            .map(|col_idx| {
+                // Use simple hash-based pattern generation (5-10 'a's)
+                let seed = (row_idx * 17 + col_idx * 31) % 6;
+                let pattern_count = 5 + seed;
+                "a".repeat(pattern_count)
+            })
+            .collect();
         table.add_row(row_data);
     }
-    
+
     table
 }
 
@@ -126,7 +130,7 @@ pub fn convert_ansi_to_html(input: &str) -> String {
 #[wasm_bindgen]
 pub fn convert_ansi_to_html_with_options(input: &str, _use_classes: bool) -> String {
     let converter = ansi_to_html::Converter::new();
-    
+
     match converter.convert(input) {
         Ok(html) => html,
         Err(_) => {
@@ -146,22 +150,22 @@ mod tests {
         let rows = 1000;
         let cols = 2;
         let cell_size = 75; // 50-100 range
-        
+
         let start = Instant::now();
         let table = create_large_table(rows, cols, cell_size);
         let creation_time = start.elapsed();
-        
+
         let start = Instant::now();
         let table_string = table.to_string();
         let render_time = start.elapsed();
-        
+
         let height = table.get_height();
-        
+
         println!("Table creation time: {:?}", creation_time);
         println!("Table render time: {:?}", render_time);
         println!("Table height: {} lines", height);
         println!("Table string length: {} characters", table_string.len());
-        
+
         assert!(height > 0);
         assert!(table_string.len() > 0);
         assert!(creation_time.as_millis() < 500); // Should complete within 500ms
@@ -171,23 +175,30 @@ mod tests {
     fn test_aaaaaaaa_table_height() {
         let rows = 1000;
         let cols = 1;
-        
+
         let start = Instant::now();
         let table = create_aaaaaaaa_table(rows, cols);
         let creation_time = start.elapsed();
-        
+
         let start = Instant::now();
         let table_string = table.to_string();
         let render_time = start.elapsed();
-        
+
         let height = table.get_height();
-        
+
         println!("Aaaaaaaa table creation time: {:?}", creation_time);
         println!("Aaaaaaaa table render time: {:?}", render_time);
         println!("Aaaaaaaa table height: {} lines", height);
-        println!("Aaaaaaaa table string length: {} characters", table_string.len());
-        
-        assert!(height > 2000, "Table height {} should be greater than 2000", height);
+        println!(
+            "Aaaaaaaa table string length: {} characters",
+            table_string.len()
+        );
+
+        assert!(
+            height > 2000,
+            "Table height {} should be greater than 2000",
+            height
+        );
         assert!(table_string.len() > 0);
         assert!(creation_time.as_millis() < 500); // Should complete within 500ms
     }
@@ -198,10 +209,17 @@ mod tests {
         table.set_header(vec!["Name".to_string(), "Age".to_string()]);
         table.add_row(vec!["Alice".to_string(), "30".to_string()]);
         table.add_row(vec!["Bob".to_string(), "25".to_string()]);
-        
+
         // Test different styles
-        let styles = vec!["ascii", "modern", "rounded", "borders_only", "horizontal_only", "no_borders"];
-        
+        let styles = vec![
+            "ascii",
+            "modern",
+            "rounded",
+            "borders_only",
+            "horizontal_only",
+            "no_borders",
+        ];
+
         for style in styles {
             table.set_style(style);
             let output = table.to_string();
@@ -215,37 +233,40 @@ mod tests {
         // Test basic ANSI escape sequences
         let ansi_text = "\x1b[1mBold\x1b[0m \x1b[31mRed\x1b[0m \x1b[32mGreen\x1b[0m";
         let html = convert_ansi_to_html(ansi_text);
-        
+
         println!("ANSI input: {}", ansi_text);
         println!("HTML output: {}", html);
-        
+
         // Check that HTML contains expected elements
         assert!(html.contains("<b>"), "Should contain bold tags");
         assert!(html.contains("</b>"), "Should contain bold close tags");
         assert!(html.contains("style="), "Should contain style attributes");
         assert!(html.contains("color:"), "Should contain color styles");
-        
+
         // Test with options
         let html_with_classes = convert_ansi_to_html_with_options(ansi_text, true);
         println!("HTML with classes: {}", html_with_classes);
-        
+
         // Test table with ANSI content
         let mut table = TableWrapper::new();
         table.set_header(vec!["Name".to_string(), "Status".to_string()]);
         table.add_row(vec![
             "\x1b[1mAlice\x1b[0m".to_string(),
-            "\x1b[32mOnline\x1b[0m".to_string()
+            "\x1b[32mOnline\x1b[0m".to_string(),
         ]);
         table.add_row(vec![
             "\x1b[1mBob\x1b[0m".to_string(),
-            "\x1b[31mOffline\x1b[0m".to_string()
+            "\x1b[31mOffline\x1b[0m".to_string(),
         ]);
-        
+
         let table_html = table.to_html();
         println!("Table HTML output:\n{}", table_html);
-        
+
         assert!(table_html.len() > 0, "HTML table should not be empty");
-        assert!(table_html.contains("<b>"), "Table HTML should contain bold formatting");
+        assert!(
+            table_html.contains("<b>"),
+            "Table HTML should contain bold formatting"
+        );
     }
 
     #[test]
@@ -253,12 +274,15 @@ mod tests {
         // Test with invalid ANSI sequence to ensure fallback works
         let invalid_ansi = "\x1b[999mInvalid\x1b[0m Normal text";
         let html = convert_ansi_to_html(invalid_ansi);
-        
+
         println!("Invalid ANSI input: {}", invalid_ansi);
         println!("Fallback HTML output: {}", html);
-        
+
         // Should contain the text without ANSI codes
         assert!(html.contains("Normal text"), "Should contain normal text");
-        assert!(!html.contains("\x1b["), "Should not contain ANSI escape sequences");
+        assert!(
+            !html.contains("\x1b["),
+            "Should not contain ANSI escape sequences"
+        );
     }
 }
