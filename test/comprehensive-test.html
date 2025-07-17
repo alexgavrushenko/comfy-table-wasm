@@ -243,9 +243,18 @@
     </div>
     
     <script type="module">
-        import init, { TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options } from '../pkg-web/comfy_table_wasm.js';
-        import { createSynchronizedTestSuite } from './test-suite-synchronized.js';
-        import { createTestSuite } from './test-suite-extended.js';
+        // Use absolute paths for GitHub Pages compatibility
+        const basePath = window.location.origin + window.location.pathname.replace('/test/comprehensive-test.html', '');
+        import(`${basePath}/pkg-web/comfy_table_wasm.js`).then(async (wasmModule) => {
+            const { default: init, TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options } = wasmModule;
+            
+            const [syncModule, extendedModule] = await Promise.all([
+                import('./test-suite-synchronized.js'),
+                import('./test-suite-extended.js')
+            ]);
+            
+            const { createSynchronizedTestSuite } = syncModule;
+            const { createTestSuite } = extendedModule;
         
         let wasmInitialized = false;
         let synchronizedTestSuite = null;
@@ -958,6 +967,24 @@
                     </div>
                 `;
             }
+        });
+        }).catch(error => {
+            console.error('Failed to load WASM module:', error);
+            document.getElementById('test-results').innerHTML = `
+                <div class="error-message">
+                    <strong>❌ Failed to load WASM module:</strong> ${error.message}
+                    <br><br>
+                    <p>This might be due to:</p>
+                    <ul>
+                        <li>MIME type issues with GitHub Pages</li>
+                        <li>Network connectivity problems</li>
+                        <li>Browser compatibility issues</li>
+                    </ul>
+                    <button onclick="location.reload()" style="padding: 5px 10px; background: #007acc; color: white; border: none; border-radius: 3px; cursor: pointer; margin-top: 10px;">
+                        🔄 Reload Page
+                    </button>
+                </div>
+            `;
         });
     </script>
 </body>

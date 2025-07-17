@@ -130,7 +130,7 @@ The test suite is automatically deployed to GitHub Pages and includes:
 - **Debug Tools**: Interactive debugging for failed tests
 - **Unicode Support**: International characters and emoji testing
 
-**🌐 [View Live Test Suite](https://your-username.github.io/comfy-table-wasm/)**
+**🌐 [View Live Test Suite](https://alexgavrushenko.github.io/comfy-table-wasm/)**
 
 ### Local Testing
 

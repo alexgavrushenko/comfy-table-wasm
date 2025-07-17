@@ -77,6 +77,11 @@ jobs:
       run: |
         cp -r test/ pages-deploy/
         cp -r pkg-web/ pages-deploy/
+        # Add .nojekyll to prevent GitHub Pages from processing files with Jekyll
+        touch pages-deploy/.nojekyll
+        # List deployed files for debugging
+        echo "Deployed file structure:"
+        find pages-deploy -type f | head -20
         
     - name: Create index.html for GitHub Pages
       run: |
@@ -181,6 +186,14 @@ jobs:
                 
                 <div class="button-container">
                     <a href="test/comprehensive-test.html" class="btn">🧪 Run Interactive Test Suite</a>
+                    <br><br>
+                    <div style="margin-top: 20px;">
+                        <p><strong>Direct Links:</strong></p>
+                        <a href="test/">Test Directory</a> |
+                        <a href="test/comprehensive-test.html">Comprehensive Test Suite</a> |
+                        <a href="test/ansi-demo.html">ANSI Demo</a> |
+                        <a href="pkg-web/">WASM Package</a>
+                    </div>
                 </div>
                 
                 <div class="features">
