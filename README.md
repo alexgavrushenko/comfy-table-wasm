@@ -116,6 +116,43 @@ The library provides excellent performance for table generation and rendering:
 - Optimized for both creation and rendering operations
 - Memory efficient with predictable resource usage
 
+## Test Suite
+
+This package includes a comprehensive test suite with interactive browser testing:
+
+### 🧪 Interactive Test Suite
+
+The test suite is automatically deployed to GitHub Pages and includes:
+
+- **Synchronized Tests**: Exact reproductions of original comfy-table tests
+- **Extended Tests**: Performance benchmarks, stress tests, and edge cases  
+- **ANSI to HTML Conversion**: Beautiful color formatting in the browser
+- **Debug Tools**: Interactive debugging for failed tests
+- **Unicode Support**: International characters and emoji testing
+
+**🌐 [View Live Test Suite](https://your-username.github.io/comfy-table-wasm/)**
+
+### Local Testing
+
+```bash
+# Run local test server
+npm run serve
+# or: python3 -m http.server 8000
+
+# Open browser tests
+open http://localhost:8000/test/comprehensive-test.html
+```
+
+### Test Categories
+
+- **Table Creation**: Basic table functionality and structure
+- **Style Presets**: All available table styling options
+- **Dynamic Content**: Width constraints and content wrapping
+- **Performance**: Large table generation and rendering speed
+- **ANSI Colors**: Color formatting and HTML conversion
+- **Unicode**: International text and special characters
+- **Edge Cases**: Empty tables, malformed input, stress testing
+
 ## Browser Compatibility
 
 Compatible with all modern browsers that support WebAssembly (ES2015+).

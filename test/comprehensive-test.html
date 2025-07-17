@@ -220,7 +220,7 @@
     
     <div class="controls">
         <button id="run-tests" onclick="runAllTests()">🚀 Run Synchronized Tests</button>
-        <button id="run-original-tests" onclick="runOriginalTests()">📋 Run Original Tests</button>
+        <button id="run-extended-tests" onclick="runExtendedTests()">🚀 Run Extended Tests</button>
         <button id="clear-results" onclick="clearResults()">🧹 Clear Results</button>
         <button id="toggle-all" onclick="toggleAllOutputs()">👁️ Toggle All Outputs</button>
         <button id="debug-mode" onclick="toggleDebugMode()">🔍 Debug Mode: OFF</button>
@@ -233,9 +233,9 @@
             <p>🎨 <strong>Enhanced with ANSI colors</strong> - All table outputs are beautifully colorized and rendered as HTML!</p>
             <p>✅ <strong>Exact reproduction</strong> of original test behaviors within WASM API constraints.</p>
             
-            <h2>📋 Original Tests</h2>
-            <p>The original test suite with additional ANSI conversion tests and edge cases.</p>
-            <p>🔧 <strong>Broader coverage</strong> including custom scenarios and comprehensive functionality testing.</p>
+            <h2>⚡ Extended Tests</h2>
+            <p>Performance benchmarks, stress tests, edge cases, and unique scenarios not covered in synchronized tests.</p>
+            <p>🔧 <strong>Specialized coverage</strong> including performance metrics, Unicode handling, and complex ANSI conversions.</p>
             
             <hr style="margin: 20px 0;">
             <p><strong>Choose a test suite above to begin testing!</strong></p>
@@ -245,11 +245,11 @@
     <script type="module">
         import init, { TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options } from '../pkg-web/comfy_table_wasm.js';
         import { createSynchronizedTestSuite } from './test-suite-synchronized.js';
-        import { createTestSuite } from './test-suite.js';
+        import { createTestSuite } from './test-suite-extended.js';
         
         let wasmInitialized = false;
         let synchronizedTestSuite = null;
-        let originalTestSuite = null;
+        let extendedTestSuite = null;
         let currentResults = [];
         let debugMode = false;
         
@@ -257,22 +257,27 @@
             if (!wasmInitialized) {
                 await init();
                 synchronizedTestSuite = createSynchronizedTestSuite(TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options);
-                originalTestSuite = createTestSuite(TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options);
+                extendedTestSuite = createTestSuite(TableWrapper, create_large_table, create_aaaaaaaa_table, convert_ansi_to_html, convert_ansi_to_html_with_options);
                 wasmInitialized = true;
             }
         }
         
         async function runTestSuite(testSuite, suiteName) {
             const runButton = document.getElementById('run-tests');
-            const originalButton = document.getElementById('run-original-tests');
+            const extendedButton = document.getElementById('run-extended-tests');
             const resultsDiv = document.getElementById('test-results');
             
             try {
                 runButton.disabled = true;
-                originalButton.disabled = true;
+                extendedButton.disabled = true;
                 runButton.textContent = 'Initializing WASM...';
                 
                 await initializeWasm();
+                
+                // Ensure test suite is properly initialized
+                if (!testSuite || !testSuite.tests) {
+                    throw new Error(`Test suite not properly initialized: ${suiteName}`);
+                }
                 
                 runButton.textContent = `Running ${suiteName}...`;
                 resultsDiv.innerHTML = `<div class="loading">Running ${suiteName}...</div>`;
@@ -367,9 +372,9 @@
                 }
                 
                 runButton.textContent = '🚀 Run Synchronized Tests';
-                originalButton.textContent = '📋 Run Original Tests';
+                extendedButton.textContent = '🚀 Run Extended Tests';
                 runButton.disabled = false;
-                originalButton.disabled = false;
+                extendedButton.disabled = false;
                 
             } catch (error) {
                 resultsDiv.innerHTML = `
@@ -378,18 +383,52 @@
                     </div>
                 `;
                 runButton.textContent = '🚀 Run Synchronized Tests';
-                originalButton.textContent = '📋 Run Original Tests';
+                extendedButton.textContent = '🚀 Run Extended Tests';
                 runButton.disabled = false;
-                originalButton.disabled = false;
+                extendedButton.disabled = false;
             }
         }
         
         window.runAllTests = async function() {
-            await runTestSuite(synchronizedTestSuite, 'Synchronized Tests');
+            try {
+                await initializeWasm(); // Ensure initialization
+                if (!synchronizedTestSuite) {
+                    throw new Error('Synchronized test suite not initialized');
+                }
+                await runTestSuite(synchronizedTestSuite, 'Synchronized Tests');
+            } catch (error) {
+                console.error('Error running synchronized tests:', error);
+                document.getElementById('test-results').innerHTML = `
+                    <div class="error-message">
+                        <strong>Failed to run synchronized tests:</strong> ${error.message}
+                        <br><br>
+                        <button onclick="location.reload()" style="padding: 5px 10px; background: #007acc; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            🔄 Reload Page
+                        </button>
+                    </div>
+                `;
+            }
         };
         
-        window.runOriginalTests = async function() {
-            await runTestSuite(originalTestSuite, 'Original Tests');
+        window.runExtendedTests = async function() {
+            try {
+                await initializeWasm(); // Ensure initialization
+                if (!extendedTestSuite) {
+                    throw new Error('Extended test suite not initialized');
+                }
+                await runTestSuite(extendedTestSuite, 'Extended Tests');
+            } catch (error) {
+                console.error('Error running extended tests:', error);
+                document.getElementById('test-results').innerHTML = `
+                    <div class="error-message">
+                        <strong>Failed to run extended tests:</strong> ${error.message}
+                        <br><br>
+                        <button onclick="location.reload()" style="padding: 5px 10px; background: #007acc; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            🔄 Reload Page
+                        </button>
+                    </div>
+                `;
+            }
         };
         
         function createTestResultDiv(testName, index) {
@@ -653,32 +692,188 @@
                         const lines = result.split('\n');
                         const maxLineLength = Math.max(...lines.map(line => line.length));
                         
+                        // Function to strip ANSI codes and measure visual length
+                        function stripAnsi(text) {
+                            return text.replace(/\x1b\[[0-9;]*m/g, '');
+                        }
+                        
+                        function getVisualLength(text) {
+                            return stripAnsi(text).length;
+                        }
+                        
+                        // Analyze each line
+                        const lineAnalysis = lines.map((line, i) => {
+                            const rawLength = line.length;
+                            const visualLength = getVisualLength(line);
+                            const ansiCodes = line.match(/\x1b\[[0-9;]*m/g) || [];
+                            const strippedContent = stripAnsi(line);
+                            
+                            return {
+                                index: i + 1,
+                                rawLength,
+                                visualLength,
+                                ansiCodes,
+                                strippedContent,
+                                rawLine: line
+                            };
+                        });
+                        
+                        const maxVisualLength = Math.max(...lineAnalysis.map(l => l.visualLength));
+                        const totalAnsiBytes = lineAnalysis.reduce((sum, l) => sum + (l.rawLength - l.visualLength), 0);
+                        
                         const debugInfo = { 
                             output: result, 
                             htmlOutput: htmlResult,
                             maxLineLength: maxLineLength,
+                            maxVisualLength: maxVisualLength,
                             width: 25,
                             description: 'Debug output for Dynamic Content Arrangement test',
                             lines: lines,
-                            lineCount: lines.length
+                            lineCount: lines.length,
+                            lineAnalysis: lineAnalysis,
+                            totalAnsiBytes: totalAnsiBytes
                         };
                         
                         const debugContent = document.getElementById('debug-content');
                         debugContent.innerHTML = `
                             <div class="test-metadata">
-                                <strong>Expected:</strong> maxLineLength should be ≤ 35 (25 + tolerance for borders)<br>
-                                <strong>Actual:</strong> ${maxLineLength} characters<br>
-                                <strong>Status:</strong> ${maxLineLength <= 35 ? '✅ PASS' : '❌ FAIL'}<br>
-                                <strong>Lines:</strong> ${lines.length}<br>
+                                <h3>🔍 ANSI Length Analysis</h3>
                                 <strong>Width Setting:</strong> 25 characters<br>
+                                <strong>Expected Visual Length:</strong> ≤ 35 (25 + tolerance for borders)<br>
+                                <strong>Max Raw Length:</strong> ${maxLineLength} characters (including ANSI codes)<br>
+                                <strong>Max Visual Length:</strong> ${maxVisualLength} characters (without ANSI codes)<br>
+                                <strong>Total ANSI Bytes:</strong> ${totalAnsiBytes} bytes<br>
+                                <strong>Lines:</strong> ${lines.length}<br>
+                                <strong>Status (Raw):</strong> ${maxLineLength <= 35 ? '✅ PASS' : '❌ FAIL'}<br>
+                                <strong>Status (Visual):</strong> ${maxVisualLength <= 35 ? '✅ PASS' : '❌ FAIL'}<br>
                             </div>
                             
-                            <div class="test-metadata"><strong>📋 Line Analysis:</strong></div>
-                            <div class="test-output" style="max-height: 200px; overflow-y: auto; font-size: 11px;">
-                                ${lines.map((line, i) => `Line ${i + 1} (${line.length} chars): ${escapeHtml(line)}`).join('\n')}
+                            <div class="test-metadata"><strong>📋 Detailed Line Analysis:</strong></div>
+                            <div class="test-output" style="max-height: 300px; overflow-y: auto; font-size: 10px; font-family: monospace;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                                    <thead style="background: #f0f0f0;">
+                                        <tr>
+                                            <th style="border: 1px solid #ddd; padding: 4px;">Line</th>
+                                            <th style="border: 1px solid #ddd; padding: 4px;">Raw Len</th>
+                                            <th style="border: 1px solid #ddd; padding: 4px;">Visual Len</th>
+                                            <th style="border: 1px solid #ddd; padding: 4px;">ANSI Codes</th>
+                                            <th style="border: 1px solid #ddd; padding: 4px;">Visual Content</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${lineAnalysis.map(l => `
+                                            <tr>
+                                                <td style="border: 1px solid #ddd; padding: 4px;">${l.index}</td>
+                                                <td style="border: 1px solid #ddd; padding: 4px; ${l.rawLength > 35 ? 'background: #ffebee;' : ''}">${l.rawLength}</td>
+                                                <td style="border: 1px solid #ddd; padding: 4px; ${l.visualLength > 35 ? 'background: #ffebee;' : ''}">${l.visualLength}</td>
+                                                <td style="border: 1px solid #ddd; padding: 4px; font-size: 9px;">${l.ansiCodes.length} codes</td>
+                                                <td style="border: 1px solid #ddd; padding: 4px; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(l.strippedContent)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="test-metadata"><strong>📝 Raw Lines with ANSI:</strong></div>
+                            <div class="test-output" style="max-height: 200px; overflow-y: auto; font-size: 10px;">
+                                ${lineAnalysis.map(l => `Line ${l.index}: ${escapeHtml(l.rawLine)}`).join('\n')}
                             </div>
                             
                             ${formatTestResult(debugInfo, 0)}
+                        `;
+                    } else if (testName.includes('Complex Nested Sequences') || testName.includes('Complex ANSI')) {
+                        // Debug Complex ANSI formatting test
+                        const complexAnsi = '\x1b[1m\x1b[31m\x1b[4mBold Red Underlined\x1b[0m \x1b[42m\x1b[30mGreen BG Black Text\x1b[0m \x1b[38;5;196mBright Red\x1b[0m';
+                        const html = convert_ansi_to_html(complexAnsi);
+                        
+                        // Analyze the ANSI conversion in detail
+                        const ansiSequences = complexAnsi.match(/\x1b\[[0-9;]*m/g) || [];
+                        const textParts = complexAnsi.split(/\x1b\[[0-9;]*m/).filter(part => part.length > 0);
+                        
+                        // Check for specific formatting elements
+                        const hasBold = html.includes('<b>') || html.includes('font-weight');
+                        const hasUnderline = html.includes('<u>') || html.includes('text-decoration') || html.includes('underline');
+                        const hasBackground = html.includes('background') || html.includes('bg-');
+                        const hasColor = html.includes('color:') || html.includes('rgb');
+                        
+                        // Parse expected formatting
+                        const expectedFormats = [
+                            { sequence: '\x1b[1m', description: 'Bold', found: hasBold },
+                            { sequence: '\x1b[31m', description: 'Red text', found: hasColor },
+                            { sequence: '\x1b[4m', description: 'Underline', found: hasUnderline },
+                            { sequence: '\x1b[42m', description: 'Green background', found: hasBackground },
+                            { sequence: '\x1b[30m', description: 'Black text', found: hasColor },
+                            { sequence: '\x1b[38;5;196m', description: '256-color red', found: hasColor }
+                        ];
+                        
+                        const debugContent = document.getElementById('debug-content');
+                        debugContent.innerHTML = `
+                            <div class="test-metadata">
+                                <h3>🔍 Complex ANSI Formatting Analysis</h3>
+                                <strong>Input:</strong> Complex nested ANSI sequences<br>
+                                <strong>Expected:</strong> Bold + underline + colors + background<br>
+                                <strong>Test Status:</strong> ${hasBold && hasUnderline && hasBackground ? '✅ PASS' : '❌ FAIL'}<br>
+                            </div>
+                            
+                            <div class="test-metadata"><strong>📋 Input Analysis:</strong></div>
+                            <div class="test-output" style="max-height: 200px; overflow-y: auto; font-size: 11px;">
+                                <strong>Raw ANSI Input:</strong><br>
+                                <code>${escapeHtml(complexAnsi)}</code><br><br>
+                                
+                                <strong>ANSI Sequences Found (${ansiSequences.length}):</strong><br>
+                                ${ansiSequences.map((seq, i) => `${i + 1}. <code>${escapeHtml(seq)}</code>`).join('<br>')}<br><br>
+                                
+                                <strong>Text Parts:</strong><br>
+                                ${textParts.map((part, i) => `${i + 1}. "${escapeHtml(part)}"`).join('<br>')}
+                            </div>
+                            
+                            <div class="test-metadata"><strong>🎨 Conversion Analysis:</strong></div>
+                            <div class="test-output" style="max-height: 200px; overflow-y: auto; font-size: 11px;">
+                                <strong>HTML Output:</strong><br>
+                                <code style="word-break: break-all;">${escapeHtml(html)}</code><br><br>
+                                
+                                <strong>Rendered Output:</strong><br>
+                                <div style="padding: 10px; border: 1px solid #ddd; background: #f9f9f9;">${html}</div>
+                            </div>
+                            
+                            <div class="test-metadata"><strong>✅ Format Detection Results:</strong></div>
+                            <div class="test-output" style="max-height: 200px; overflow-y: auto; font-size: 11px;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                    <thead style="background: #f0f0f0;">
+                                        <tr>
+                                            <th style="border: 1px solid #ddd; padding: 8px;">ANSI Sequence</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px;">Description</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px;">Found in HTML</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px;">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${expectedFormats.map(format => `
+                                            <tr>
+                                                <td style="border: 1px solid #ddd; padding: 8px;"><code>${escapeHtml(format.sequence)}</code></td>
+                                                <td style="border: 1px solid #ddd; padding: 8px;">${format.description}</td>
+                                                <td style="border: 1px solid #ddd; padding: 8px;">${format.found ? '✅ Yes' : '❌ No'}</td>
+                                                <td style="border: 1px solid #ddd; padding: 8px; ${format.found ? 'background: #e8f5e8;' : 'background: #ffebee;'}">${format.found ? 'PASS' : 'FAIL'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="test-metadata"><strong>🔧 Debugging Tips:</strong></div>
+                            <div class="test-output" style="font-size: 11px;">
+                                <ul>
+                                    <li><strong>Bold detection:</strong> Look for &lt;b&gt; tags or font-weight CSS</li>
+                                    <li><strong>Underline detection:</strong> Look for &lt;u&gt; tags or text-decoration: underline CSS</li>
+                                    <li><strong>Background detection:</strong> Look for background or background-color CSS</li>
+                                    <li><strong>Color detection:</strong> Look for color: CSS properties</li>
+                                    <li><strong>Reset handling:</strong> \\x1b[0m should close all formatting</li>
+                                </ul>
+                                
+                                ${!hasBold ? '<p style="color: red;"><strong>Issue:</strong> Bold formatting (&lt;b&gt; or font-weight) not detected</p>' : ''}
+                                ${!hasUnderline ? '<p style="color: red;"><strong>Issue:</strong> Underline formatting (&lt;u&gt; tag or text-decoration) not detected</p>' : ''}
+                                ${!hasBackground ? '<p style="color: red;"><strong>Issue:</strong> Background formatting not detected</p>' : ''}
+                            </div>
                         `;
                     } else {
                         document.getElementById('debug-content').innerHTML = `
@@ -698,9 +893,71 @@
             }, 100);
         };
         
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        // Pre-initialize WASM on page load to prevent race conditions
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('Comfy Table WASM Test Suite loaded');
+            
+            // Show initialization status
+            const runButton = document.getElementById('run-tests');
+            const extendedButton = document.getElementById('run-extended-tests');
+            
+            runButton.disabled = true;
+            extendedButton.disabled = true;
+            runButton.textContent = '⏳ Loading WASM...';
+            extendedButton.textContent = '⏳ Loading WASM...';
+            
+            try {
+                await initializeWasm();
+                console.log('WASM initialized successfully');
+                
+                runButton.disabled = false;
+                extendedButton.disabled = false;
+                runButton.textContent = '🚀 Run Synchronized Tests';
+                extendedButton.textContent = '🚀 Run Extended Tests';
+                
+                // Update the initial message
+                document.getElementById('test-results').innerHTML = `
+                    <div class="loading">
+                        <h2>✅ Ready to Test!</h2>
+                        
+                        <h3>🚀 Synchronized Tests</h3>
+                        <p>Tests synchronized with the original comfy-table library, covering table creation, styling presets, dynamic content arrangement, and performance benchmarks.</p>
+                        <p>🎨 <strong>Enhanced with ANSI colors</strong> - All table outputs are beautifully colorized and rendered as HTML!</p>
+                        <p>✅ <strong>Exact reproduction</strong> of original test behaviors within WASM API constraints.</p>
+                        
+                        <h3>⚡ Extended Tests</h3>
+                        <p>Performance benchmarks, stress tests, edge cases, and unique scenarios not covered in synchronized tests.</p>
+                        <p>🔧 <strong>Specialized coverage</strong> including performance metrics, Unicode handling, and complex ANSI conversions.</p>
+                        
+                        <hr style="margin: 20px 0;">
+                        <p><strong>WASM is loaded and ready! Choose a test suite above to begin testing!</strong></p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Failed to initialize WASM:', error);
+                
+                runButton.disabled = false;
+                extendedButton.disabled = false;
+                runButton.textContent = '⚠️ Retry Synchronized';
+                extendedButton.textContent = '⚠️ Retry Extended';
+                
+                document.getElementById('test-results').innerHTML = `
+                    <div class="error-message">
+                        <strong>❌ Failed to initialize WASM:</strong> ${error.message}
+                        <br><br>
+                        <p>This might be due to:</p>
+                        <ul>
+                            <li>Network issues loading the WASM module</li>
+                            <li>Browser compatibility issues</li>
+                            <li>Server configuration problems</li>
+                        </ul>
+                        <button onclick="location.reload()" style="padding: 5px 10px; background: #007acc; color: white; border: none; border-radius: 3px; cursor: pointer; margin-top: 10px;">
+                            🔄 Reload Page
+                        </button>
+                    </div>
+                `;
+            }
         });
     </script>
 </body>

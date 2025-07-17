@@ -279,14 +279,27 @@ export function createSynchronizedTestSuite(TableWrapper, create_large_table, cr
         // Check that content wrapping occurred
         const lines = result.split('\n');
         
-        if (maxLineLength > 35) { // Allow some tolerance for borders
-            throw new Error(`Line too long: ${maxLineLength} characters, expected around 25`);
+        // Function to strip ANSI codes and measure visual length
+        function stripAnsi(text) {
+            return text.replace(/\x1b\[[0-9;]*m/g, '');
+        }
+        
+        function getVisualLength(text) {
+            return stripAnsi(text).length;
+        }
+        
+        const maxRawLength = Math.max(...lines.map(line => line.length));
+        const maxVisualLength = Math.max(...lines.map(line => getVisualLength(line)));
+        
+        if (maxVisualLength > 35) { // Allow some tolerance for borders
+            throw new Error(`Visual line too long: ${maxVisualLength} characters (raw: ${maxRawLength}), expected visual width ≤ 35`);
         }
         
         return { 
             output: result, 
             htmlOutput: htmlResult,
-            maxLineLength: maxLineLength,
+            maxLineLength: maxRawLength,
+            maxVisualLength: maxVisualLength,
             width: 25,
             description: 'Dynamic content arrangement with width constraint'
         };
